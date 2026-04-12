@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.timetables.interval import CronDataIntervalTimetable
+from airflow.sensors.external_task import ExternalTaskSensor
 from function_master_transaction import *
 from airflow.sdk import Param
 from datetime import datetime
@@ -49,8 +50,15 @@ def transform_transaction_data():
 with DAG(
     dag_id="transform_transaction_data",
     default_args=default_args,
-    schedule=CronDataIntervalTimetable("0 1 * * *", timezone="Asia/Bangkok"),
 ) as dag:
+    task_wait_for_ingest = ExternalTaskSensor(
+        task_id="wait_for_ingest_transaction_data",
+        external_dag_id="ingest_transaction_data",
+        external_task_id=None,
+        mode="reschedule",
+        timeout=3600,
+        poke_interval=60,
+    )
     task_check_status = PythonOperator(
         task_id="check_supabase_status",
         python_callable=check_status,

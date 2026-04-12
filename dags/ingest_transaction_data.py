@@ -1,5 +1,6 @@
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.timetables.interval import CronDataIntervalTimetable
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from function_master_transaction import *
 from dotenv import load_dotenv
 from datetime import timedelta
@@ -98,5 +99,10 @@ with DAG(
         task_id="ingest_transaction_data",
         python_callable=ingest_transaction_data,
     )
+    trigger_transform = TriggerDagRunOperator(
+        task_id="trigger_transform_transaction_data",
+        trigger_dag_id="transform_transaction_data",
+        wait_for_completion=False,
+    )
 
-    check_db >> task_ingest_transaction
+    check_db >> task_ingest_transaction >> trigger_transform
