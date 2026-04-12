@@ -4,7 +4,7 @@ from airflow.utils.task_group import TaskGroup  # เพิ่ม import
 from airflow.timetables.interval import CronDataIntervalTimetable
 from airflow.models.param import Param
 from datetime import timedelta
-from function_master_transaction import * #<- แก้ไข import ให้ตรงกับฟังก์ชันที่ใช้
+from fuction.function_master_transaction import * #<- แก้ไข import ให้ตรงกับฟังก์ชันที่ใช้
 
 default_args = {
     "owner": "health_data_ingest_master_data",

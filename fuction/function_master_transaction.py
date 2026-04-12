@@ -1,4 +1,4 @@
-from his_generators import *
+from fuction.his_generators import *
 from datetime import datetime
 from supabase import Client, create_client
 from dotenv import load_dotenv

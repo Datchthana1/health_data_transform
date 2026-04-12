@@ -1,9 +1,9 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from function_master_transaction import *
+from fuction.function_master_transaction import *
 from datetime import datetime, timedelta
 from pathlib import Path
-from sql_script import *
+from script.sql_script import *
 from dotenv import load_dotenv
 import psycopg2
 import pendulum
