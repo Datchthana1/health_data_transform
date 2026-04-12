@@ -434,7 +434,7 @@ def drug_allergy(profiles: list[dict]) -> list[dict]:
                 "severity":random.choices(["Mild","Moderate","Severe","Life-threatening"],
                                            weights=[0.40,0.35,0.20,0.05])[0],
                 "onset_date":str((datetime.today()-timedelta(days=random.randint(30,3000))).date()),
-                "verified_by":f"DR{random.randint(1,80):04d}","active":True})
+                "verified_by":_uid("DR",random.randint(1,80)),"active":True})
             counter+=1
     return records
 
@@ -622,7 +622,7 @@ def drug_order(visits: list[dict], doctors: list[dict],
                 "doctor_id":v["doctor_id"],             # FK → doctor
                 "drug_id":item["drug_code"] if item["drug_code"] in inv_ids else None,  # FK → drug_inventory
                 **item,"dispensed_at":v["discharge_date"],
-                "dispensed_by":f"PH{random.randint(1,20):03d}",
+                "dispensed_by":_uid("PH",random.randint(1,20)),
                 "route":random.choice(["oral","IV","topical","inhalation","SC"]),
                 "frequency":random.choice(["OD","BD","TID","QID","PRN","stat"]),
                 "duration_days":random.choice([3,5,7,14,30,90])}); counter+=1
@@ -678,7 +678,7 @@ def payment_transaction(bills: list[dict]) -> list[dict]:
                 "hn":b["hn"],                           # FK → patient_profile
                 "txn_type":"Insurance Claim","amount":b["covered_amount"],
                 "method":b["payment_scheme"],"reference":f"CLM{random.randint(1000000,9999999)}",
-                "txn_at":b["billed_at"],"cashier_id":f"CS{random.randint(1,15):02d}","status":"Settled"})
+                "txn_at":b["billed_at"],"cashier_id":_uid("CS",random.randint(1,15)),"status":"Settled"})
         if b["patient_copay"]>0:
             records.append({"txn_id":_fuid("PT"),
                 "bill_id":b["bill_id"],                 # FK → billing
@@ -688,7 +688,7 @@ def payment_transaction(bills: list[dict]) -> list[dict]:
                 "method":random.choices(["Cash","Credit Card","Debit Card","PromptPay","Mobile Banking"],
                                          weights=[0.30,0.25,0.15,0.20,0.10])[0],
                 "reference":f"RCP{random.randint(1000000,9999999)}",
-                "txn_at":b["billed_at"],"cashier_id":f"CS{random.randint(1,15):02d}","status":"Settled"})
+                "txn_at":b["billed_at"],"cashier_id":_uid("CS",random.randint(1,15)),"status":"Settled"})
             counter+=1
     return records
 
