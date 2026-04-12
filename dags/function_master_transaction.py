@@ -31,7 +31,7 @@ def get_client() -> Client:
 def check_status(**context):
     client = get_client()
     try:
-        client.table("dim_doctor").select("doctor_id").limit(1).execute()
+        client.table("his_doctor").select("doctor_id").limit(1).execute()
         db_status = "connected"
     except Exception as e:
         db_status = f"error: {e}"
