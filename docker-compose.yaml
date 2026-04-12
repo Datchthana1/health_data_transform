@@ -8,7 +8,7 @@ services:
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./dags:/opt/airflow/dags
-      - ./fuction:/opt/airflow/fuction
+      - ./function:/opt/airflow/function
       - ./script:/opt/airflow/script
       - ./assets/.env:/opt/airflow/assets/.env
       - ./logs:/opt/airflow/logs
