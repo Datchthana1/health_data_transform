@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from fuction.function_master_transaction import *
+from function.function_master_transaction import *
 from datetime import datetime, timedelta
 from pathlib import Path
 from script.sql_script import *
