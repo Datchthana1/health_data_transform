@@ -34,7 +34,7 @@ def check_pg_connection():
     print("PostgreSQL connection successful")
     return {"status": "connected"}
 
-def transform_transaction_data():
+def transform_dimension_data():
     conn = get_pg_connect()
     cursor = conn.cursor()
     try:
@@ -51,17 +51,18 @@ def transform_transaction_data():
         conn.close()
 
 with DAG(
-    dag_id="PL2_transform_transaction_data",
+    dag_id="PL2_transform_dimension_data",
     default_args=default_args,
     schedule=None,
     catchup=False,
+    tags=["health_data", "dimension_data", "PL2", "transform"],
 ) as dag:
     task_pg_connection = PythonOperator(
         task_id="check_pg_connection",
         python_callable=check_pg_connection,
     )
-    transform_task = PythonOperator(
-        task_id="transform_transaction_data_task",
-        python_callable=transform_transaction_data,
+    transform_task_dimension = PythonOperator(
+        task_id="transform_dimension_data_task",
+        python_callable=transform_dimension_data,
     )
-    task_pg_connection >> transform_task
+    task_pg_connection >> transform_task_dimension

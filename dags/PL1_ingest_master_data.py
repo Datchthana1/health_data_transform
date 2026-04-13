@@ -3,6 +3,7 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup  # เพิ่ม import
 from airflow.timetables.interval import CronDataIntervalTimetable
 from airflow.models.param import Param
+from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import timedelta
 from function.function_master_transaction import * #<- แก้ไข import ให้ตรงกับฟังก์ชันที่ใช้
 
@@ -39,7 +40,7 @@ with DAG(
     schedule=CronDataIntervalTimetable("@monthly", timezone="Asia/Bangkok"),
     description="DAG for ingesting master data into the health data warehouse",
     catchup=False,
-    tags=["health_data", "master_data"],
+    tags=["health_data", "master_data", "PL1", "ingest"],
 ):
     check_db = PythonOperator(
         task_id="check_db_connection",
@@ -51,4 +52,10 @@ with DAG(
         python_callable=ingest_master_data,
     )
 
-    check_db >> task_ingest_data
+    trigger_transform_dimension = TriggerDagRunOperator(
+        task_id="trigger_transform_dimension_data",
+        trigger_dag_id="PL2_transform_dimension_data",
+        wait_for_completion=False,
+    )
+
+    check_db >> task_ingest_data >> trigger_transform_dimension

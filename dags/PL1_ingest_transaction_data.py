@@ -88,7 +88,7 @@ with DAG(
     schedule= CronDataIntervalTimetable("@daily", timezone="Asia/Bangkok"),
     description="DAG for ingesting transaction data into the health data warehouse",
     catchup=False,
-    tags=["health_data", "transaction_data"],
+    tags=["health_data", "transaction_data", "PL1", "ingest"],
 ):
     check_db = PythonOperator(
         task_id="check_db_connection",
@@ -99,10 +99,11 @@ with DAG(
         task_id="ingest_transaction_data",
         python_callable=ingest_transaction_data,
     )
-    trigger_transform = TriggerDagRunOperator(
+
+    task_trigger_transform_transaction = TriggerDagRunOperator(
         task_id="trigger_transform_transaction_data",
-        trigger_dag_id="transform_transaction_data",
+        trigger_dag_id="PL2_transform_transaction_data",
         wait_for_completion=False,
     )
 
-    check_db >> task_ingest_transaction >> trigger_transform
+    check_db >> task_ingest_transaction >> task_trigger_transform_transaction
