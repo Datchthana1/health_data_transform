@@ -34,7 +34,7 @@ def ingest_master_data(**context):
     }
 
 with DAG(
-    dag_id="ingest_master_data",
+    dag_id="PL1_ingest_master_data",
     default_args=default_args,
     schedule=CronDataIntervalTimetable("@monthly", timezone="Asia/Bangkok"),
     description="DAG for ingesting master data into the health data warehouse",

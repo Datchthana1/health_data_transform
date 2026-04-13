@@ -51,7 +51,7 @@ def transform_transaction_data():
         conn.close()
 
 with DAG(
-    dag_id="transform_transaction_data",
+    dag_id="PL2_transform_transaction_data",
     default_args=default_args,
     schedule=None,
     catchup=False,

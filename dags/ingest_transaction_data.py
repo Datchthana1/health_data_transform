@@ -83,7 +83,7 @@ def ingest_transaction_data():
     }
 
 with DAG(
-    dag_id="ingest_transaction_data",
+    dag_id="PL1_ingest_transaction_data",
     default_args=default_args,
     schedule= CronDataIntervalTimetable("@daily", timezone="Asia/Bangkok"),
     description="DAG for ingesting transaction data into the health data warehouse",
