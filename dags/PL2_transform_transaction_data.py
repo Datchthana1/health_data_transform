@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup  # เพิ่ม import
+from airflow.models.param import Param
 from airflow.timetables.interval import CronDataIntervalTimetable
 from function.function_master_transaction import *
 from datetime import datetime, timedelta
@@ -17,7 +18,7 @@ default_args = {
     "start_date": pendulum.datetime(2024, 6, 1, tz=pendulum.timezone("Asia/Bangkok")),
     "retries": 3,
     "retry_delay": timedelta(minutes=2),
-}   
+} 
 
 def get_pg_connect():
     load_dotenv(Path("/opt/airflow/assets/.env"))
@@ -30,17 +31,22 @@ def get_pg_connect():
         sslmode="require"
     )
 
-def check_pg_connection():
+def check_pg_connection(ti=None, **kwargs):
+    params = kwargs['params']
     conn = get_pg_connect()
     conn.close()
     print("PostgreSQL connection successful")
-    return {"status": "connected"}
+    return {
+        "status": "connected" ,
+        "transaction_table": params.get("transaction_table")
+        }
 
-def transform_transaction_data():
+def transform_transaction_data(ti=None):
+    transaction_table = ti.xcom_pull(task_ids="check_pg_connection", key="transaction_table")
     conn = get_pg_connect()
     cursor = conn.cursor()
     try:
-        cursor.execute(INSERT_TRANSACTION_VISIT)
+        cursor.execute(INSERT_TRANSACTION_VISIT if transaction_table == "patient_visit" else "")
         conn.commit()
         affected = cursor.rowcount
         print(f"Rows affected: {affected}")
@@ -57,6 +63,7 @@ with DAG(
     default_args=default_args,
     schedule=None,
     catchup=False,
+    params={"transaction_table": Param("patient_visit", type="string", enum=["patient_visit"])},  # type: ignore[arg-type]
     tags=["health_data", "transaction_data", "PL2", "transform"],
 ) as dag:
     task_pg_connection = PythonOperator(

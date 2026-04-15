@@ -1,5 +1,8 @@
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
+from airflow.models.param import Param
+from airflow.utils.task_group import TaskGroup  # เพิ่ม import
+from airflow.timetables.interval import CronDataIntervalTimetable
 from function.function_master_transaction import *
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -17,6 +20,7 @@ default_args = {
     "retry_delay": timedelta(minutes=2),
 }
 
+
 def get_pg_connect():
     load_dotenv(Path("/opt/airflow/assets/.env"))
     return psycopg2.connect(
@@ -28,17 +32,22 @@ def get_pg_connect():
         sslmode="require"
     )
 
-def check_pg_connection():
+def check_pg_connection(ti=None, **kwargs):
+    params = kwargs['params']
     conn = get_pg_connect()
     conn.close()
     print("PostgreSQL connection successful")
-    return {"status": "connected"}
+    return {
+        "status": "connected" ,
+        "dimension_table": params.get("dimension_table")
+        }
 
-def transform_dimension_data():
+def transform_dimension_data(ti=None):
+    dimension_table = ti.xcom_pull(task_ids="check_pg_connection", key="dimension_table")
     conn = get_pg_connect()
     cursor = conn.cursor()
     try:
-        cursor.execute(INSERT_DIM_PATIENT)
+        cursor.execute(INSERT_DIM_PATIENT if dimension_table == "patient" else "")
         conn.commit()
         affected = cursor.rowcount
         print(f"Rows affected: {affected}")
@@ -55,6 +64,8 @@ with DAG(
     default_args=default_args,
     schedule=None,
     catchup=False,
+    params={
+        "dimension_table": Param("patient", type="string", enum=["patient"])},  # type: ignore[arg-type]
     tags=["health_data", "dimension_data", "PL2", "transform"],
 ) as dag:
     task_pg_connection = PythonOperator(
