@@ -72,24 +72,27 @@ INSERT_TRANSACTION_VISIT = """
         his_visits.primary_icd_desc,
         his_visits.age_at_visit,
         his_visits.gender,
-        his_visits.status
+        his_visits.status ,
+        his_vital_signs.nurse_id ,
+        his_nurse.name as nurse_name,
+        his_vital_signs.recorded_at ,
+        his_vital_signs.sbp ,
+        his_vital_signs.dbp ,
+        his_vital_signs.hr ,
+        his_vital_signs.temperature ,
+        his_vital_signs.rr ,
+        his_vital_signs.spo2 ,
+        his_vital_signs.weight_kg ,
+        his_vital_signs.height_cm ,
+        his_vital_signs.pain_score ,
+        his_vital_signs.consciousness ,
+        ROW_NUMBER() OVER (
+            PARTITION BY his_visits.visit_id 
+            ORDER BY recorded_at DESC)
     FROM his_visits
     LEFT JOIN his_patient ON his_visits.hn = his_patient.hn
     LEFT JOIN his_doctor ON his_visits.doctor_id = his_doctor.doctor_id
     LEFT JOIN his_ward ON his_visits.ward_id = his_ward.ward_id
-    ON CONFLICT (visit_id) DO UPDATE SET
-        patient_name     = EXCLUDED.patient_name,
-        doctor_name      = EXCLUDED.doctor_name,
-        ward_name        = EXCLUDED.ward_name,
-        department       = EXCLUDED.department,
-        visit_date       = EXCLUDED.visit_date,
-        discharge_date   = EXCLUDED.discharge_date,
-        los_days         = EXCLUDED.los_days,
-        triage_level     = EXCLUDED.triage_level,
-        payment_scheme   = EXCLUDED.payment_scheme,
-        primary_icd10    = EXCLUDED.primary_icd10,
-        primary_icd_desc = EXCLUDED.primary_icd_desc,
-        age_at_visit     = EXCLUDED.age_at_visit,
-        gender           = EXCLUDED.gender,
-        status           = EXCLUDED.status;
+    LEFT JOIN his_vital_signs ON his_vital_signs.visit_id = his_visits.visit_id
+    LEFT JOIN his_nurse ON his_nurse.nurse_id = his_vital_signs.nurse_id
 """
