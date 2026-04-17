@@ -1,7 +1,7 @@
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.timetables.interval import CronDataIntervalTimetable
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from function.function_master_transaction import *
+from function.function_master_transaction import * #<-- เพิ่ม ใช้สำหรับการ Import Data
 from dotenv import load_dotenv
 from datetime import timedelta
 from airflow.sdk import Param

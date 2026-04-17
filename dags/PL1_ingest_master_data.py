@@ -1,11 +1,11 @@
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from airflow.utils.task_group import TaskGroup  # เพิ่ม import
-from airflow.timetables.interval import CronDataIntervalTimetable
-from airflow.models.param import Param
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from datetime import timedelta
+from airflow.timetables.interval import CronDataIntervalTimetable
+from airflow.operators.python import PythonOperator
 from function.function_master_transaction import * #<- แก้ไข import ให้ตรงกับฟังก์ชันที่ใช้
+from airflow.utils.task_group import TaskGroup  # เพิ่ม import
+from airflow.models.param import Param
+from datetime import timedelta
+from airflow import DAG
 
 default_args = {
     "owner": "health_data_ingest_master_data",
